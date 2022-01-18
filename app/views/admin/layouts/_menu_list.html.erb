@@ -1,0 +1,69 @@
+<%if session_user.has_access?("view_user", "create_user", "edit_user") and session_user.has_access?("view_role", "create_role", "edit_role") and session_user.has_access?("view_privilege")%>
+  <%=render partial: 'admin/layouts/menu',
+    locals: {title: 'User Management', controller: 'users', icon: 'group',
+    menus: [
+      {controller: 'users', sub_menus: [
+        {title: 'Show All', action: 'index', privilege: 'view_users'},
+        {title: 'Create New', action: 'new', privilege: 'create_users'},
+        ]
+      },
+      {controller: 'roles', sub_menus: [
+        {title: 'Show All', action: 'index', privilege: 'view_roles'},
+        {title: 'Create New', action: 'new', privilege: 'create_roles'},
+        ]
+      },
+      {title: 'Show Privileges', controller: 'privileges', action: 'index', privilege: 'view_privileges'}
+    ],
+    others: [
+      {action: 'show', controller: 'users'}, {action: 'show', controller: 'roles'}, {action: 'show', controller: 'privileges'},
+      {action: 'edit', controller: 'users'}, {action: 'edit', controller: 'roles'},]
+  }%>
+<%else%>
+  <%=render partial: 'admin/layouts/menu_default', locals: {controller: 'users', icon: 'group'}%>
+  <%=render partial: 'admin/layouts/menu', locals:{
+    title: 'Roles & Privileges', icon: 'unlock-alt',
+    menus: [
+      {title: 'Show Roles', controller: 'roles', action: 'index', privilege: 'view_roles'},
+      {title: 'Create New Roles', controller: 'roles', action: 'new', privilege: 'create_roles'},
+      {title: 'Show Privileges', controller: 'privileges', action: 'index', privilege: 'view_privileges'}
+    ],
+    others: [
+      {action: 'show', controller: 'roles'},
+      {action: 'show', controller: 'privileges'},
+    ]
+  }%>
+<%end%>
+
+<%=render partial: 'admin/layouts/menu', locals: {controller: 'locations', icon: 'map-marker',
+  menus: [{title: 'Show All', action: 'index', privilege: 'view_locations'}]
+}%>
+
+<%=render partial: 'admin/layouts/menu_default', locals: {controller: 'companies', icon: 'bank'}%>
+
+<%=render partial: 'admin/layouts/menu', locals: {
+  controller: 'settings', icon: 'gears',
+  menus: [{title: 'Show All', action: 'index', privilege: 'view_settings'}]}%>
+
+<%=render partial: 'admin/layouts/menu',
+  locals: {title: 'USSD', icon: 'phone',
+  menus: [
+    {title: 'Menus', controller: 'ussd_menus', sub_menus: [
+      {title: 'Show All', action: 'index', privilege: 'view_ussd_menus'},
+      {title: 'Create New', action: 'new', privilege: 'create_ussd_menus'},
+      ]
+    },
+    {title: 'Menu Connections', controller: 'ussd_menu_connections', sub_menus: [
+      {title: 'Show All', action: 'index', privilege: 'view_ussd_menu_connections'},
+      {title: 'Create New', action: 'new', privilege: 'create_ussd_menu_connections'},
+      ]
+    },
+    {title: 'Tests', controller: 'ussd_tests', sub_menus: [
+      {action: 'flares', privilege: 'view_ussd_menus'},
+      {action: 'mobile_gateway', privilege: 'view_ussd_menus'},
+      ]
+    },
+  ],
+}%>
+<%=render partial: 'admin/layouts/menu_default', locals: {controller: 'api_clients', icon: 'exchange',
+  menus: [{title: 'API Test', action: 'test', privilege: 'view_api_clients'}]
+}%>

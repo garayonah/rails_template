@@ -1,0 +1,26 @@
+<%=render layout: 'layouts/ibox', locals: {size: 6, header: t("Item Details", item: resource_name.titleize), subheader: ""} do%>
+
+  <%if session_user.has_access?"edit_#{resource_name}"%>
+    <%= link_to({action: 'edit', id: params[:id]}, class: "small btn btn-info" ) do%>
+      <i class="fa fa-edit"></i> <%=t('Edit Item', item: resource_name.titleize)%>
+    <%end%>
+    
+    <%if resource_class.column_names.include? 'status'%>
+      <%if @object.status=='active'%>
+        <%= link_to({action: 'deactivate', id: params[:id]}, class: "small btn btn-warning", onclick: "return confirm('#{t'Are you sure you want to deactivate this item?', item: resource_name.titleize}')") do%>
+          <i class="fa fa-times-circle"></i> <%=t('Deactivate Item', item: resource_name.titleize)%>
+        <%end%>
+      <%elsif @object.status=='inactive'%>
+        <%= link_to({action: 'reactivate', id: params[:id]}, class: "small btn btn-success", onclick: "return confirm('#{t'Are you sure you want to reactivate this item?', item: resource_name.titleize}')") do%>
+          <i class="fa fa-check-square-o"></i> <%=t('Reactivate Item', item: resource_name.titleize)%>
+        <%end%>
+      <%end%>
+    <%end%>
+  <%end%>
+  
+  <%= render partial: 'datatables/show',
+  locals: {
+    table_id: "#{resource_name}_show", columns: @columns, object: @object, attributes: @attributes,
+    view_button: true, edit_button: true
+  }%>
+<%end%>

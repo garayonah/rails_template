@@ -1,0 +1,36 @@
+---
+en:
+  Your Account: Your Account
+  Logout: Logout
+  Log out of your session: Log out of your session
+  Welcome User: Welcome %{user_name}
+  Log Out: Log Out
+  login: login
+  List of items: List of %{items}
+  Upload New Items: Upload New %{items}
+  Create New Item: Create New %{item}
+  Item Details: "%{item} Details"
+  More Item Functions: More %{item} Functions
+  Edit Item: Edit %{item}
+  Deactivate Item: Deactivate %{item}
+  Reactivate Item: Reactivate %{item}
+  Select Item: Select %{item}
+  Items Report: "%{items} Report"
+  Standard Items Report: Standard %{items} Report
+  Are you sure you want to deactivate this item?: Are you sure you want to deactivate this %{item}?
+  Are you sure you want to reactivate this item?: Are you sure you want to reactivate this %{item}?
+  Home: Home
+  index: index
+  View: View
+  Edit: Edit
+  new: new
+  show: show
+  An email will with a new password will be sent to this user: An email will with a new password will be sent to this user
+  Reset Password: Reset Password
+  Change Password: Change Password
+  Current Password: Current Password
+  New Password: New Password
+  Submit: Submit
+  Show All: Show All
+  Create New: Create New
+  Save changes: Save changes

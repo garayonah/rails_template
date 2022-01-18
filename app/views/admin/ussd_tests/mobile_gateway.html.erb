@@ -1,0 +1,54 @@
+<%=render layout: 'layouts/ibox', :locals=>{:size=>4, :header=>t("USSD Test"), subheader: 'Pivot MobileGateway'} do%>
+  <%=text_field_tag 'mobile_number', '', class: 'form-control params', placeholder: 'MSISDN/Mobile Number...'%>
+  <div id='screen'>
+    <textarea id='menu' placeholder="USSD Response will come here..." disabled='true'></textarea>
+    <%=text_field_tag 'input', '', class: 'form-control params', placeholder: 'Input...'%>
+    <%=hidden_field_tag 'newrequest', '0'%>
+
+    <table id='buttons'>
+      <tr id='request-continue'>
+        <td><%=button_tag 'Cancel', onclick: 'reset_session()'%></td>
+        <td><%=button_tag 'Send', onclick: 'get_ussd()'%></td>
+      </tr>
+
+      <tr id='request-end' style='display:none'>
+        <td colspan=2><%=button_tag 'OK', onclick: 'reset_session()'%></td>
+      </tr>
+    </table>
+  </div>
+<%end%>
+<%= stylesheet_link_tag 'extras/ussd.css' %>
+<script>
+function get_ussd(){
+  var url = '/ussd/mobile_gateway/?'
+  url+= 'mobile_number='+$('#mobile_number').val()+'&'
+  url+= 'session='+$('#newrequest').val()+'&'
+  url+= 'input='+$('#input').val()+'&'
+  $.get( url, function(result, status, xhr){
+    var continue_session = xhr.getResponseHeader('action');
+    //$('#menu').html(result.replace(/\n/g, '<br/>'))
+    $('#menu').html(result)
+    
+    if (continue_session=='request'){
+        $('#newrequest').val('1')
+        $('#input').prop('disabled', false);
+        $('#request-continue').show()
+        $('#request-end').hide()
+      }
+    else{
+      $('#newrequest').val('0')
+      $('#input').prop('disabled', true);
+      $('#request-continue').hide()
+      $('#request-end').show()
+    }
+  })
+}
+
+function reset_session(){
+  $('#menu').html('')
+  $('#newrequest').val('0')
+  $('#input').prop('disabled', false).val('');
+  $('#request-continue').show()
+  $('#request-end').hide()
+}
+</script>

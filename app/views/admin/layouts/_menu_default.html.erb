@@ -1,0 +1,8 @@
+<%menus||=[]; others||=[]%>
+
+<%=render :partial=> 'admin/layouts/menu', :locals=>local_assigns.merge({
+  :controller=> controller, :icon=>icon,
+  :menus=>[
+    {title: 'Show All',action: 'index', privilege: "view_#{controller}"},
+    {title: 'Create New',action: 'new', privilege: "create_#{controller}"}]+menus, :others=>[{action: 'show'}]+others
+    })%>

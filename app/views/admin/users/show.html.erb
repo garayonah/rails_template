@@ -1,0 +1,59 @@
+<%=render layout: 'layouts/ibox', :locals=>{:size=>6, :header=>t("Item Details", item: resource_name.titleize), :subheader=>""} do%>
+
+  <%if session_user.has_access?"edit_#{resource_name}"%>
+    <%= link_to({action: 'edit', id: params[:id]}, class: "small btn btn-info" ) do%>
+      <i class="fa fa-paste"></i> <%=t('Edit Item', item: resource_name.titleize)%>
+    <%end%>
+    
+    <%if resource_class.column_names.include? 'status'%>
+      <%if @object.status=='active'%>
+        <%= link_to({action: 'deactivate', id: params[:id]}, class: "small btn btn-warning", onclick: "return confirm('#{t'Are you sure you want to deactivate this item?', item: resource_name.titleize}')") do%>
+          <i class="fa fa-times-circle"></i> <%=t('Deactivate Item', item: resource_name.titleize)%>
+        <%end%>
+      <%elsif @object.status=='inactive'%>
+        <%= link_to({action: 'reactivate', id: params[:id]}, class: "small btn btn-success", onclick: "return confirm('#{t'Are you sure you want to reactivate this item?', item: resource_name.titleize}')") do%>
+          <i class="fa fa-check-square-o"></i> <%=t('Reactivate Item', item: resource_name.titleize)%>
+        <%end%>
+      <%end%>
+    <%end%>
+    <%if session_user.id.to_s!=params[:id]%>
+      <%= link_to({action: 'reset_password', id: params[:id]}, class: "small btn btn-info", onclick: "return confirm('#{t'An email will with a new password will be sent to this user'}')") do%>
+        <i class="fa fa-unlock-alt"></i> <%=t('Reset Password')%>
+      <%end%>
+    <%end%>
+  <%end%>
+  
+  <%= render partial: 'datatables/show',
+  locals: {
+    table_id: "#{resource_name}_show", columns: @columns, object: @object, attributes: @attributes,
+    view_button: true, edit_button: true,
+    extra_attributes: {privileges: {value: @object.privileges.order(:group, :name).pluck(:name).join(', ')}}
+  }%>
+<%end%>
+
+<%if session_user.id.to_s==params[:id]%>
+  <%=render layout: 'layouts/ibox', :locals=>{:size=>3, :header=>t("More Item Functions", item: resource_name.titleize), :subheader=>""} do%>
+    <%=form_tag({:action=> "change_password", id: params[:id]}, :method=> "put", style: 'display: inline-block;', :class=> "form-horizontal alert alert-success", :autocomplete=>'false') do%>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><%= t("Current Password") %></label>
+        <div class="col-sm-8">
+          <%=password_field_tag 'current_password', nil, :class=> 'form-control required'%>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><%= t("New Password") %></label>
+        <div class="col-sm-8">
+          <%=password_field_tag 'new_password', nil, :class=> 'form-control required'%>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-12">
+          <button class="btn btn-success col-sm-12 btn-primary" type="submit" onclick="return confirm('After password is changed you will be required to log in again. Are you sure you wish to continue?')">
+            <i class="fa fa-unlock-alt"></i> <%=t('Change Password')%>
+          </button>
+        </div>
+      </div>
+    <%end%>
+  <%end%>
+<%end%>

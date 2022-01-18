@@ -1,0 +1,156 @@
+<%table_id||='dataTable'; order_col||=0; order_dir||='asc'; no_search_box||=false; no_paging||=false;
+date_range||='created_at'; sum||=0; additional_params||={}; no_search_cols||=false;
+view_column||=false; edit_column||=false; add_next_action||=false;
+%>
+<script>
+function find_col(column_info, table, default_index){
+  col_index = default_index || 0
+  if (column_info){
+    if (typeof(column_info)=='string'){
+      var col_match = table.find("th:contains('"+column_info+"'), th[name='"+column_info+"']")[0]
+      if (typeof(col_match)=='object'){
+        col_index = col_match.cellIndex}
+    }
+    else if (typeof(column_info)=='number'){
+      var number_cols = $('th', table.find('thead')).length;
+      if (0<column_info && column_info<number_cols){
+        col_index = column_info
+      }
+    }
+  }
+  return col_index
+}
+</script>
+<table id="<%=table_id%>" border class="table table-striped table-bordered table-hover dataTables-layout dataTable dtr-inline" role="grid" aria-describedby="DataTables_Table_0_info">
+	<thead>
+	<%columns.each do |column_name, column_data|%>
+		<th name="<%=column_name%>" class="<%='null' if column_data[:null]%>"><%=column_data[:title]%></th>
+	<%end %>
+
+	<%if view_column%><th name="view" class="null"></th><%end%>
+	<%if edit_column%><th name="edit" class="null"></th><%end%>
+	<%if add_next_action%><th name="next_action" class="null"></th><%end%>
+	</thead>
+	<tbody>
+		<%=yield%>
+	</tbody>
+</table>
+<!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.2/css/buttons.dataTables.min.css">-->
+<script>
+	//Get table object
+	<%table = "table_#{table_id}"%>
+  var <%=table%> = $('#<%=table_id%>')
+	<%column_json = "columns_#{table_id}"%>
+  var <%=column_json%> = <%==columns.to_json%>
+
+	//Initialize dt_options(if not already defined)
+	<%dt_options = "dt_options_#{table_id}"%>
+	if (typeof <%=dt_options%> == 'undefined'){<%=dt_options%> = {}}
+	
+	//Add Toolbar settings to dt_options
+	$.extend(<%=dt_options%>, {
+      sDom: '<"toolbarL"><"toolbarR"B><"clear">lfrt<"toolbarB">ip'
+	})
+
+	//Add Order settings to dt_options
+	$.extend(<%=dt_options%>, {
+		order: [[find_col(<%=order_col.to_s.html_safe%>,<%=table%>), '<%=order_dir%>']]
+	})
+		
+	//Disable search and sort for Columns with class 'null'
+	$.extend(<%=dt_options%>, {
+		columnDefs: [
+			{targets: ['nosort', 'null'], orderable: false},
+			{targets: ['nosearch', 'null'], searchable: false}]
+	})
+
+	<%if local_assigns[:no_sort]%>
+		//Disable Sort buttons
+		$.extend(<%=dt_options%>, {"aaSorting": [], bSort: false})
+	<%end%>
+
+	<%if local_assigns[:no_header_footer]%>
+		//Disable Header(records per page, search box) and footer(Previous, Next)
+		$.extend(<%=dt_options%>, {sDom: 'rt'})
+	<%end%>
+
+	<%if local_assigns[:no_search_box]%>
+		//Remove Search Box
+		$.extend(<%=dt_options%>, {searching: false})
+	<%end%>
+
+	$(document).on('ready page:load', function(){
+		//Generate DataTable using dt_options
+		<%datatable = "datatable_#{table_id}"%>
+		var <%=datatable%> = <%=table%>.DataTable(<%=dt_options%>);
+
+		/*FUNCTIONS THAT HAPPEN AFTER DATATABLE IS GENERATED*/
+
+		//Customize Search Box
+		$('#<%=table_id%>_filter label').contents().eq(0).remove()
+		$('#<%=table_id%>_filter label input[type=search]').attr('placeholder', 'Search All...')
+
+		/*Add Search-Column Row*/
+		//Create search_row string with start of row tag
+		var search_row = '<tr class="search-row">'
+		<%=table%>.find("thead th").each(function() {
+			var colName = $(this).attr('name')
+			var colData = <%=column_json%>[colName]
+			//columns with 'null' class have empty cell
+			if ($(this).hasClass('null')){
+				search_row+='<th class="null"></th>'
+			}
+			//columns with 'dropdown' attribute have dropdown select
+			else if (colData['dropdown']){
+				var search_options = colData['dropdown'];
+				search_row+='<th><select name="'+colName+'" class="chosen-select search-col-dropdown" data-placeholder="Choose '+$(this).html()+'">'
+				search_row+='<option value="" selected>Choose '+$(this).html()+'</option>'
+				search_options.forEach(function(element) {
+						if ($.isArray(element)){select_value = element[1]; select_content = element[0]}
+						else{select_value = element; select_content = element}
+						search_row+='<option value="'+select_value+'">'+select_content+'</option>'
+				});
+				search_row+='</select></th>'
+			}
+			else if (colData['calendar']){
+				search_row+='<th>\
+					<span name="'+colName+'" class="search-col-date input-daterange input-group">\
+						<input type="text" placeholder="Start" class="input-sm form-control" name="start_date"/>\
+						<span class="input-group-addon"></span>\
+						<input type="text" placeholder="End" class="input-sm form-control" name="end_date"/>\
+					</span>\
+				</th>'
+			}
+			//normal columns have text input
+			else{
+				search_row+='<th><input title="" name="'+colName+'" placeholder="Search '+$(this).html()+'" class="search-col" type="text"></input></th>'
+			}
+		})
+		//Add end of row tag to search row
+		search_row+='</tr>'
+		//Add search row to the table
+		<%=table%>.find("thead").append(search_row)
+		/*Finished adding Search-Column Row*/
+
+		//Tooltip popups for the Search-Column Inputs
+		$('.search-col').change(function(){
+			$(this).attr('tooltip-title', $(this).val())
+		})
+		
+		//Tooltip popups for the Search-Column Dropdown
+		$('.search-col-dropdown').change(function(){
+			if( $(this).siblings('.chosen-container').length){
+				$(this).siblings().attr('tooltip-title', $(this).find(':selected').text())
+			}else{
+				$(this).attr('tooltip-title', $(this).val())
+			}
+		})
+
+		//Tooltip popups for the Search-Column Dates
+		$('.search-col-date input').on('change dp.change', function(){
+			console.log('Date Changed')
+			parent = $(this).parent()
+			parent.attr('tooltip-title', parent.find('input[name=start_date]').val()+' - '+parent.find('input[name=end_date]').val())
+		})
+	})
+</script>

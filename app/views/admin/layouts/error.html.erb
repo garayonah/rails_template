@@ -1,0 +1,15 @@
+<div class="adminscreen middle-box text-center">
+  <h1>500</h1>
+  <h3 class="font-bold">Internal Server Error</h3>
+  <div class="error-desc">
+    The server encountered something unexpected that didn't allow it to complete the request. Please contact technical support.
+    </div><br/>
+    <textarea disabled style="color: red; background: #ffe5e5" cols="100" rows="10" >
+Error: <%=@exception.class%>
+Message: <%=@exception.message%>
+<%backtrace = @exception.backtrace.select{|b| b.include?Rails.root.to_s or b==@exception.backtrace.first}%>
+<%backtrace.each do |line|%>
+Line: <%=line%>
+<%end%>
+    </textarea>
+  </div>

@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%=APP_NAME%></title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+  </head>
+  <body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+      <div>
+        <div>
+          <%=image_tag("img/logo1.png", alt: nil)%>
+        </div>
+        <h3>Rails App</h3>
+        <p>Template for Bootstrap Ruby on Rails apps</p>
+
+          <div id="flash">
+            <span style="color:blue"><%== flash.discard(:notice)%></span>
+            <span style="color:red"><%== flash.discard(:error_notice)%></span>
+            <span style="color:green"><%== flash.discard(:success_notice)%></span>
+          </div>
+          <%=form_tag({controller: :login, action: :login}, {role: "form", class: 'm-t'}) do%>
+          <script>localStorage.clear()</script>
+            <div class="form-group">
+              <%=text_field_tag 'username', nil, class: 'form-control', placeholder: "Email or Username", required: true%>
+            </div>
+            <div class="form-group">
+              <%=password_field_tag 'password', nil, class: 'form-control', placeholder: "Password", required: true%>
+            </div>
+            <%=submit_tag 'Login', class: "btn btn-w-m btn-success full-width m-b"%>
+          <%end%>
+        <p class="m-t"> <small><%=APP_NAME%>  &copy; 2019</small> </p>
+      </div>
+
+
+    </div>
+
+  </body>
+
+</html>

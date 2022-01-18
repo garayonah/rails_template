@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><%=t(resource_name).titleize+' | ' if controller_name!='admin'%><%=APP_NAME%></title>
+    <%= csrf_meta_tags %>
+    <% csp_meta_tag %>
+    <%=favicon_link_tag 'img/ico.png', rel: 'icon', type: 'image/png'%>
+
+    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+    <%#= stylesheet_link_tag 'css/bootstrap.min.css'%>
+    <%= stylesheet_link_tag 'css/style.css'%>
+    <%= stylesheet_link_tag 'css/styles.css'%>
+    <%= stylesheet_link_tag 'css/plugins/bootstrap-dialog/bootstrap-dialog.min.css'%>
+    <%= stylesheet_link_tag 'font-awesome-css/font-awesome.css'%>
+
+    <%= stylesheet_link_tag 'css/animate.css'%>
+    <%= stylesheet_link_tag 'css/plugins/chosen/chosen.css'%>
+    <%= stylesheet_link_tag 'css/plugins/iCheck/custom.css'%>
+    <%= stylesheet_link_tag 'css/plugins/datapicker/datepicker3.css'%>
+    <%= stylesheet_link_tag 'css/plugins/datapicker/bootstrap-datetimepicker.css'%>
+
+    <!-- DataTable CSS -->
+    <%#= stylesheet_link_tag 'datatable_tree'%>
+    <%= stylesheet_link_tag 'extras/datatable.css'%>
+
+    <%= stylesheet_link_tag 'extras/extras.css'%>
+    
+    <!-- Mainly scripts -->
+    <%= javascript_pack_tag "application"%>
+    <%#= javascript_pack_tag "js/jquery-2.1.1.js"%>
+    <%#= javascript_pack_tag "js/bootstrap.js"%>
+    <%#= javascript_pack_tag "js/bootstrap.min.js"%>
+    <%#= javascript_pack_tag "js/jquery-ui-1.10.4"%>
+    <%= javascript_pack_tag "js/inspinia"%>
+    <%= javascript_pack_tag "js/plugins/bootstrap-dialog/bootstrap-dialog"%>
+
+    <!-- Data Tables -->
+    
+    <%= javascript_pack_tag "js/moment"%>
+
+    <!--i-check checkbox-->
+    <%= javascript_pack_tag "js/plugins/iCheck/icheck"%>
+    <!--chosen dropdown-->
+    <%= javascript_pack_tag "js/plugins/chosen/chosen"%>
+    <!--menu plugin-->
+    <%= javascript_pack_tag "js/plugins/metisMenu/jquery"%>
+    <!-- Jquery Validate -->
+    <%= javascript_pack_tag "js/plugins/validate/jquery"%>
+    <!-- Data Picker -->
+    <%= javascript_pack_tag "js/plugins/datapicker/moment-with-locales"%>
+    <%= javascript_pack_tag "js/plugins/datapicker/bootstrap-datepicker"%>
+    <%= javascript_pack_tag "js/plugins/datapicker/bootstrap-datetimepicker"%>
+  </head>
+  <%=render  partial: "admin/layouts/session_timer"%>
+
+  <body>
+    <div id='wrapper'>
+      <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+          <ul id="side-menu" class="nav">
+            <li class="nav-header">
+              <div class="dropdown profile-element">
+                <span><%=image_tag("img/logo.png", alt: "image", class: "img-circle")%></span>
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#"/>
+                <span class="clear"/><span class="block m-t-xs"/>
+								<strong id="column-title" class="font-bold"><%=APP_NAME%></strong>
+								<ul class="dropdown-menu animated fadeInRight m-t-xs">
+									<li><%=link_to t('Your Account'), admin_user_path(session['id'])%></li>
+									<li class="divider"></li>
+									<li><%=link_to t('Logout'), admin_logout_path, :title=>t('Log out of your session')%></li>
+								</ul><!--dropdown-menu animated fadeInRight m-t-xs-->
+              </div><!--dropdown profile-element-->
+							<div class="logo-element"><%=image_tag("img/logo-small.png", alt: nil)%></div>
+            </li><!--nav-header-->
+						<%=render  partial: "admin/layouts/menu_list"%>
+          </ul><!--side-menu-->
+        </div><!--sidebar-collapse-->
+      </nav><!--navbar-default navbar-static-side-->
+      
+      <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+          <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+              <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+            </div><!--navbar-header-->
+
+            <ul class="nav navbar-top-links navbar-right">
+              <li class="tooltip-demo">
+                <a id="your-account" href="/admin/users/<%=session['id']%>">
+                  <span class="m-r-sm text-muted welcome-message" data-toggle="tooltip" data-placement="bottom" title="Go to Your Account">
+                      <%=t("Welcome User", :user_name=> session[:name].capitalize)%>
+                      <b>(<%=session[:role]%>)</b>
+                  </span>
+                </a><!--your-account-->
+              </li><!--tooltip-demo-->
+              <!--Language Flags-->
+              <%['en', 'rw', 'fr'].each do |locale|%>
+                <li>
+                  <%=link_to url_for(locale: locale) do%>
+                    <div <%=="class='locale'" if locale==I18n.locale.to_s%> >
+                      <%=image_tag("img/#{locale}.png", alt: locale, border: '0', width: '15', height: '15')%>
+                    </div>
+                  <%end%>
+                </li>
+              <%end%>
+              <!--Language Flags(end)-->
+              <li><!--Logout-->
+                <%=link_to admin_logout_path do%>
+                  <i class="fa fa-sign-out"></i> <%=t "Log Out"%>
+                <%end%>
+              </li><!--Logout(end)-->
+            </ul><!--nav navbar-top-links navbar-right-->
+          </nav><!--navbar navbar-static-top-->
+        </div><!--row border-bottom-->
+        <%= yield %>
+      <div>
+    <div>
+  </body>
+</html>

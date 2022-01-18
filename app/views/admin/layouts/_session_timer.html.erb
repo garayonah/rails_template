@@ -1,0 +1,15 @@
+<%= javascript_include_tag "extras/session_timeout.js"%>
+<%#= javascript_pack_tag "extras/session_timeout"%>
+
+<script>
+  $(document).ready(function () {
+    localStorage.session_active = true
+    //number of minutes before timeout
+    localStorage.session_limit = <%=Setting.find_by_name('minutes_until_session_timeout').value%>
+
+    //Check Session Time when page first loads
+    check_session_limit('/admin/logout', {notice: 'Logged out because user was inactive'})
+    session_timer('/admin/logout', {notice: 'Logged out because user was inactive'});
+    $('body').bind('mousemove keydown scroll ready', function(){session_timer('/admin/logout', {notice: 'Logged out because user was inactive'})})
+  });
+</script>

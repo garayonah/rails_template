@@ -1,0 +1,55 @@
+<%controller||=nil; title||=controller.to_s.titleize; icon||='th-large';%>
+<%others||=[]; active||=false%>
+
+
+<%sub_menus = menus.map{|menu| menu[:sub_menus]}.flatten.compact%>
+
+<%#check if menu should be open when the page loads%>
+<%active||= (controller_name==controller)%>
+<%active||= menus.any?{|l| [l[:controller], l[:action]]==[controller_name, action_name]}%>
+<%active||= others.any?{|l| [l[:controller], l[:action]]==[controller_name, action_name]}%>
+<%active||= sub_menus.any?{|l| [l[:controller], l[:action]]==[controller_name, action_name]}%>
+
+<%privileges_needed = (menus+sub_menus).map{|menu| Privilege.format(menu[:privilege])}.flatten.compact%>
+
+<%if session_user.all_access? or privileges_needed.empty? or !(privileges_needed & session_privileges).empty?%>
+  
+  <li <%="class=active" if active%> >
+    <a href="#"><i class="fa fa-<%=icon%>"></i> <span class="nav-label"><%=t(title).titleize%></span><span class="fa arrow"></span></a>
+    <ul class="nav nav-second-level">
+      <%menus.each do |menu|%>
+        <%if menu[:sub_menus].blank?%>
+          <%if menu[:privilege].blank? or ((session_user.has_access?menu[:privilege]) & (!session_user.has_privileges?menu[:exclude]))%>
+              <li><%=
+              begin
+                link_to t(menu[:title]||menu[:action]).titleize, controller: menu[:controller]||controller, action: menu[:action]
+              rescue ActionController::UrlGenerationError
+                link_to t(menu[:title]||menu[:action]).titleize, controller: 'base', resource_name: menu[:controller]||controller, action: menu[:action]
+              end
+              %></li>
+          <%end%>
+        <%else%>
+          <%sub_privileges_needed = menu[:sub_menus].map{|menu| Privilege.format(menu[:privilege])}.flatten.compact%>
+          <%if session_user.all_access? or sub_privileges_needed.empty? or !(sub_privileges_needed & session_privileges).empty?%>
+            <%sub_controller = menu[:controller]%>
+            <li>
+              <a href="#"><span class="fa arrow"></span><%=t(menu[:title]||sub_controller||menu[:action]).titleize%></a>
+              <ul class="nav nav-third-level">
+                <%menu[:sub_menus].each do |sub_menu|%>
+
+                  <li><%=
+                  begin
+                    a = link_to t(sub_menu[:title]||sub_menu[:action]).titleize, controller: sub_menu[:controller]||sub_controller||controller, action: sub_menu[:action]
+                  rescue ActionController::UrlGenerationError
+                    link_to t(sub_menu[:title]||sub_menu[:action]).titleize, controller: 'base', resource_name: sub_menu[:controller]||sub_controller||controller, action: sub_menu[:action]
+                  end
+                  %></li>
+                <%end%>
+              </ul>
+            </li>
+          <%end%>
+        <%end%>
+      <%end%>
+    </ul>
+  </li>
+<%end%>

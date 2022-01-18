@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><%=t(resource_name).titleize+' | ' if controller_name!='admin'%><%=APP_NAME%></title>
+    <%= csrf_meta_tags %>
+    <% csp_meta_tag %>
+    <%=favicon_link_tag 'img/ico.png', rel: 'icon', type: 'image/png'%>
+
+    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+    <!-- DataTable CSS -->
+    <%#= stylesheet_link_tag 'datatable_tree'%>
+    <%= stylesheet_link_tag 'extras/datatable.css'%>
+
+    <%= stylesheet_link_tag 'extras/extras.css'%>
+
+    <%#= javascript_include_tag "js/jquery-2.1.1.js"%>
+    <%#= javascript_pack_tag "js/jquery-2.1.1.js"%>
+    <%#= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    <!-- Mainly scripts -->    
+    <%= javascript_include_tag "js/jquery-2.1.1.js"%>
+    <%= javascript_include_tag "js/bootstrap.js"%>
+    <%= javascript_include_tag "js/bootstrap.min.js"%>
+    <%#= javascript_include_tag "js/jquery-ui-1.10.4.min"%>
+    <%= javascript_include_tag "js/inspinia.js"%>
+    <%= javascript_include_tag "js/plugins/bootstrap-dialog/bootstrap-dialog.min.js"%>
+
+    <!-- Data Tables -->
+    <%= javascript_include_tag "js/plugins/dataTables_old/jquery.dataTables.js"%>
+    <%= javascript_include_tag "js/plugins/dataTables_old/dataTables.bootstrap.js"%>
+    <%= javascript_include_tag "js/plugins/dataTables_old/dataTables.responsive.js"%>
+    <%= javascript_include_tag "js/plugins/dataTables_old/dataTables.tableTools.min.js"%>
+    
+    <%= javascript_include_tag "js/plugins/dataTables_old/dataTables.buttons.min.js"%>
+    <%= javascript_include_tag "js/plugins/dataTables_old/buttons.html5.min.js"%>
+    <%= javascript_include_tag "js/plugins/dataTables_old/buttons.print.min.js"%>
+
+    <%= javascript_include_tag "extras/datatable.js"%>
+    
+    <%= javascript_include_tag "js/moment.js"%>
+
+    <!--i-check checkbox-->
+    <%= javascript_include_tag "js/plugins/iCheck/icheck.min.js"%>
+    <!--chosen dropdown-->
+    <%= javascript_include_tag "js/plugins/chosen/chosen.jquery.js"%>
+    <!--menu plugin-->
+    <%= javascript_include_tag "js/plugins/metisMenu/jquery.metisMenu.js"%>
+    <!-- Jquery Validate -->
+    <%= javascript_include_tag "js/plugins/validate/jquery.validate.min.js"%>
+    <!-- Data Picker -->
+    <%= javascript_include_tag "js/plugins/datapicker/moment-with-locales.js"%>
+    <%= javascript_include_tag "js/plugins/datapicker/bootstrap-datepicker.js"%>
+    <%= javascript_include_tag "js/plugins/datapicker/bootstrap-datetimepicker.js"%>
+    <!--end-->
+  </head>
+  <%=render  partial: "admin/layouts/session_timer"%>
+
+  <body>
+    <div id='wrapper'>
+      <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+          <ul id="side-menu" class="nav">
+            <li class="nav-header">
+              <div class="dropdown profile-element">
+                <span><%=image_tag("img/logo.png", alt: "image", class: "img-circle")%></span>
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#"/>
+                <span class="clear"/><span class="block m-t-xs"/>
+								<strong id="column-title" class="font-bold"><%=APP_NAME%></strong>
+								<ul class="dropdown-menu animated fadeInRight m-t-xs">
+									<li><%=link_to t('Your Account'), admin_user_path(session['id'])%></li>
+									<li class="divider"></li>
+									<li><%=link_to t('Logout'), admin_logout_path, :title=>t('Log out of your session')%></li>
+								</ul><!--dropdown-menu animated fadeInRight m-t-xs-->
+              </div><!--dropdown profile-element-->
+							<div class="logo-element"><%=image_tag("img/logo-small.png", alt: nil)%></div>
+            </li><!--nav-header-->
+						<%=render  partial: "admin/layouts/menu_list"%>
+          </ul><!--side-menu-->
+        </div><!--sidebar-collapse-->
+      </nav><!--navbar-default navbar-static-side-->
+      
+      <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+          <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+              <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+            </div><!--navbar-header-->
+
+            <ul class="nav navbar-top-links navbar-right">
+              <li class="tooltip-demo">
+                <a id="your-account" href="/admin/users/<%=session['id']%>">
+                  <span class="m-r-sm text-muted welcome-message" data-toggle="tooltip" data-placement="bottom" title="Go to Your Account">
+                      <%=t("Welcome User", :user_name=> session[:name].capitalize)%>
+                      <b>(<%=session[:role]%>)</b>
+                  </span>
+                </a><!--your-account-->
+              </li><!--tooltip-demo-->
+              <!--Language Flags-->
+              <%['en', 'rw', 'fr'].each do |locale|%>
+                <li>
+                  <%=link_to url_for(locale: locale) do%>
+                    <div <%=="class='locale'" if locale==I18n.locale.to_s%> >
+                      <%=image_tag("img/#{locale}.png", alt: locale, border: '0', width: '15', height: '15')%>
+                    </div>
+                  <%end%>
+                </li>
+              <%end%>
+              <!--Language Flags(end)-->
+              <li><!--Logout-->
+                <%=link_to admin_logout_path do%>
+                  <i class="fa fa-sign-out"></i> <%=t "Log Out"%>
+                <%end%>
+              </li><!--Logout(end)-->
+            </ul><!--nav navbar-top-links navbar-right-->
+          </nav><!--navbar navbar-static-top-->
+        </div><!--row border-bottom-->
+
+				<div class="row wrapper border-bottom white-bg page-heading">
+          <div class="col-lg-10">
+            <!--Application Name | Resource Name-->
+						<h2><%=APP_NAME%> <%=(" | " + t(resource_name).titleize) if controller_name!="admin"%></h2>
+
+            <ol class="breadcrumb"><!--Home / Resource Name / Action-->
+              <li><strong><%=link_to t('Home'), admin_root_path%></strong></li>
+              <%if controller_name!="admin"%>
+                <li><%=t(resource_name).sub('_',' ').titleize%></li>
+              <%end%>
+              <%if controller_name!="admin" && action_name!='index'%>
+                <li><%=t(action_name).sub('_',' ').titleize%></li>
+              <%end%>
+            </ol><!--breadcrumb-->
+          </div><!--col-lg-10-->
+        </div><!--row wrapper border-bottom white-bg page-heading-->
+        
+        <div class="wrapper wrapper-content animated fadeInRight">
+          <div id="flash">
+            <span style="color:blue"><%== flash.discard(:notice)%></span>
+            <span style="color:red"><%== flash.discard(:error_notice)%></span>
+            <span style="color:green"><%== flash.discard(:success_notice)%></span>
+          </div>
+          <%= yield %>
+        </div><!--wrapper wrapper-content animated fadeInRight-->
+      <div><!--page-wrapper-->
+    <div><!--wrapper-->
+  </body>
+  <script>
+    $(document).on('ready page:load', function(){
+      //Configure Chosen Select
+      var chosen_config = {
+        '.chosen-select'           : {search_contains: true, include_group_label_in_selected: true, display_selected_options: false},
+        '.chosen-select-hidden'    : {search_contains: true, include_group_label_in_selected: true, display_selected_options: false},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-no-single' : {disable_search_threshold:5},
+        '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+        '.chosen-select-width'     : {width:"95%"}
+      }
+      for (var selector in chosen_config) {
+        $(selector).chosen(chosen_config[selector]);
+      }
+
+      //Initiate Date Range
+      $('.input-daterange input').datepicker({
+        format: 'dd-mm-yyyy', orientation: "top"
+      })
+      //disable autocomplete, which blocks the calendar
+      $(".input-daterange input").attr("autocomplete", "off");
+
+      //Initiate Tooltip Popup
+      $('table.dataTable').tooltip({
+        title: function(){return $(this).attr('tooltip-title');},
+        selector: '.search-row th :nth-child(n)',
+        placement: 'bottom'
+      });
+      //Initiate iCheck for checkbox and radiobox
+      $('.i-checks').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green',
+      });
+    });
+  </script>
+</html>

@@ -1,0 +1,32 @@
+/*CSS for USSD Test views*/
+#screen, #mobile_number, #input{
+  border: 1px solid;
+  border-radius: 5px;
+}
+
+#screen{
+  background: steelblue;
+  border-radius: 0 0 5px 5px;}
+
+#menu{
+  height:200px; width: 100%; resize: none;
+  background: transparent;
+  border: none;
+  padding: 10px;
+  color: white;
+  font-size: 1.2em;
+}
+
+#mobile_number{
+  border-radius: 5px 5px 0 0;}
+
+#input{
+  width: 96%;
+  margin: 0px 2% 2%;
+}
+
+#buttons, button{width: 100%;}
+#buttons{border-collapse: separate; }
+#buttons td { border: 2px solid; background: dimgray; padding: 2px;}
+#buttons tr td:first-child { border-bottom-left-radius: 3px; }
+#buttons tr td:last-child { border-bottom-right-radius: 3px; }

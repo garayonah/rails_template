@@ -1,0 +1,29 @@
+<%=render layout: 'layouts/ibox', :locals=>{:header=>t("Create New Item", item: resource_name.titleize), :subheader=>""} do%>
+  <%=form_tag({:action=>:create}) do%>
+    <%column_size=[12/(@attributes.count/4.0).ceil,6].min%>
+    <div class="col-sm-<%=column_size%> b-r">
+      <%@attributes.each_with_index do |(attribute_name, attribute_data), i|%>
+        <div class="form-group">
+          <label><%=attribute_data[:title] %></label>
+        <%if attribute_data[:dropdown]%>
+          <%=select_tag attribute_name,
+            options_for_select([[t("Select Item", item: attribute_data[:title]), nil]]+attribute_data[:dropdown], flash[attribute_name]),
+            :class=>"form-control m-b chosen-select required"%>
+
+        <%elsif attribute_data[:boolean]%>
+          <%=check_box_tag attribute_name, flash[attribute_name], flash[attribute_name], :class=> 'i-checks form-control required'%>
+        
+        <%elsif attribute_data[:calendar]%>
+
+        <%else%>
+          <%=text_field_tag attribute_name, flash[attribute_name], :class=> 'form-control required'%>
+        <%end%>
+        </div>
+        <%if (i+1)%4==0 && @attributes.size!=i%></div><div class="col-sm-<%=column_size%> b-r"><%end%>
+      <%end%>
+      <div class="form-group">
+        <%=submit_tag "Submit", class: 'col-sm-6 btn btn-primary'%>
+      </div>
+    </div>
+  <%end%>
+<%end%>

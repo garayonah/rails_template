@@ -1,0 +1,188 @@
+<%= javascript_include_tag "js/highcharts/highcharts.js"%>
+<%= javascript_include_tag "js/highcharts/series-label.js"%>
+<%= javascript_include_tag "js/highcharts/exporting.js"%>
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+<script>
+Highcharts.chart('container', {
+    title: {
+        text: '<%=resource_name.titleize%> Combination chart'
+    },
+    xAxis: {
+        categories: ['Apples', 'Oranges', 'Pears', 'Bananas', 'Plums']
+    },
+    labels: {
+        items: [{
+            html: 'Total fruit consumption',
+            style: {
+                left: '50px',
+                top: '18px',
+                color: ( // theme
+                    Highcharts.defaultOptions.title.style &&
+                    Highcharts.defaultOptions.title.style.color
+                ) || 'black'
+            }
+        }]
+    },
+    plotOptions: {
+        column: {
+            stacking: 'normal',
+            dataLabels: {
+                enabled: true
+            }
+        }
+    },
+    series: [{
+        type: 'column',
+        name: 'Jane',
+        data: [3, 2, 1, 3, 4]
+    }, {
+        type: 'column',
+        name: 'John',
+        data: [2, 3, 5, 7, 6]
+    }, {
+        type: 'column',
+        name: 'Joe',
+        data: [4, 3, 3, 9, 0]
+    }, {
+        type: 'spline',
+        name: 'Average',
+        data: [3, 2.67, 3, 6.33, 3.33],
+        marker: {
+            lineWidth: 2,
+            lineColor: Highcharts.getOptions().colors[3],
+            fillColor: 'white'
+        }
+    }, {
+        type: 'pie',
+        name: 'Total consumption',
+        data: [{
+            name: 'Jane',
+            y: 13,
+            color: Highcharts.getOptions().colors[0] // Jane's color
+        }, {
+            name: 'John',
+            y: 23,
+            color: Highcharts.getOptions().colors[1] // John's color
+        }, {
+            name: 'Joe',
+            y: 19,
+            color: Highcharts.getOptions().colors[2] // Joe's color
+        }],
+        center: [100, 80],
+        size: 100,
+        showInLegend: false,
+        dataLabels: {
+            enabled: false
+        }
+    }]
+});
+</script>
+
+<%=render layout: 'layouts/ibox', :locals=>{:size=>12, :header=>t("Standard Items Report", items: resource_name.pluralize.titleize)} do%>
+
+  <%=form_tag({:action=>:report}) do%>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="col-lg-3 form-group">
+          <label>Report Type</label>
+          <%=select_tag 'report_type',
+            options_for_select([['Comparison', 'comparison'], ['Standard', 'standard']], params[:report_type]),
+            :class=>"input-sm form-control chosen-select required"%>
+        </div>
+        <div class="col-sm-3 form-group">
+          <label>&nbsp</label>
+          <button id="submit" type="submit" class="form-control btn btn-info btn-sm col-sm-12">
+            Generate Report
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="col-lg-3 form-group">
+          <label>X-Axis</label>
+          <%=select_tag 'x',
+            options_for_select([[t("Select Item", item: 'X'), nil]]+resource_class.column_names, params[:x]),
+            :class=>"input-sm form-control chosen-select required"%>
+        </div>
+        <div class="col-lg-3 form-group">
+          <label>Y-Axis</label>
+          <%=select_tag 'y',
+            options_for_select([[t("Select Item", item: 'Y'), nil]]+resource_class.column_names, params[:y]),
+            :class=>"input-sm form-control chosen-select required"%>
+        </div>
+        <div class="col-lg-3 form-group">
+          <label>Sum</label>
+          <%=select_tag 'sum',
+            options_for_select([[t("Select Item", item: 'Sum'), nil]]+resource_class.column_names, params[:sum]),
+            :class=>"input-sm form-control chosen-select required"%>
+        </div>
+      </div>
+    </div>
+  <%end%>
+  <%if @comparison_report%>
+    <%x,y = @comparison_report_params[:x], @comparison_report_params[:y]%>
+    <table class='comparison-report-table'>
+      <tr>
+        <td class='empty' rowspan=2 colspan=2 />
+        <th colspan=<%=@comparison_report[:x_groups].count%>><%=x.titleize%></th>
+        <td class='empty' rowspan=2 colspan=2 />
+      </tr>
+      <tr>
+        <%@comparison_report[:x_groups].each do |x_group|%><th><%=x_group.to_s.titleize%></th><%end%>
+      </tr>
+      <%@comparison_report[:y_groups].each_with_index do |y_group, i|%>
+        <tr>
+          <%if i==0%>
+            <th rowspan=<%=@comparison_report[:y_groups].count%>><%=y.titleize%></th>
+          <%end%>
+          <th><%=y_group.to_s.titleize%></th>
+          <%@comparison_report[:x_groups].each do |x_group|%>
+            <%data = @comparison_report[:data].find{|value| value[x]==x_group && value[y]==y_group}%>
+            <%if data%>
+              <td class='report-data'>
+              <span class='report-count'><%=data[:count]%></span>
+              <span class='report-sum'><%=data[:sum]%></span>
+              <span class='report-average'><%=data[:average]%></span>
+              </td>
+            <%else%>
+              <td class='report-data empty'><%='empty'%></td>
+            <%end%>
+          <%end%>
+          <th><%=y_group.to_s.titleize%></th>
+          <%if i==0%>
+            <th rowspan=<%=@comparison_report[:y_groups].count%>><%=y.titleize%></th>
+          <%end%>
+        </tr>
+      <%end%>
+
+      <tr>
+        <td class='empty' rowspan=2 colspan=2 />
+        <%@comparison_report[:x_groups].each do |x_group|%><th><%=x_group.to_s.titleize%></th><%end%>
+        <td class='empty' rowspan=2 colspan=2 />
+      </tr>
+      <tr>
+        <th colspan=<%=@comparison_report[:x_groups].count%>><%=x.titleize%></th>
+      </tr>
+    </table>
+  <%end%>
+<%end%>
+<%=default_attributes%>
+<style>
+.comparison-report-table{
+  width: 100%;
+  }
+.comparison-report-table td.empty{
+  background: #f4f4f5;
+  }
+.comparison-report-table td, .comparison-report-table th{
+  border: 1px solid #e7eaec;
+  padding: 8px;
+  width: 50px;
+  vertical-align: top;
+}
+.report-data:hover{
+  background-color: #f5f5f5;}
+</style>

@@ -1,0 +1,16 @@
+<%=render layout: 'layouts/ibox', :locals=>{:size=>12, :header=>t("List of items", items: resource_name.pluralize.titleize),
+subheader: query_params.to_h.map{|key,value| "#{key}: #{value}"}.join(' | ')} do%>
+
+	<%#if the size of the table is larger than the pagination limit, use client_side pagination%>
+	<%if @datatable_type=='server'%>
+		<%= render partial: 'datatables/server', locals: {
+			table_id: "#{resource_name}_list", columns: @attributes, view_column: resource_class.showable, edit_column: resource_class.editable, default_filter: query_params}%>
+	
+	<%#if the size of the table is less than the pagination limit, use normal local pagination%>
+	<%elsif @datatable_type=='local'%>
+		<%= render partial: 'datatables/local', locals: {
+			table_id: "#{resource_name}_list", columns: @attributes, data: @objects, view_column: resource_class.showable, edit_column: resource_class.editable
+		}%>
+	<%end%>
+
+<%end%>

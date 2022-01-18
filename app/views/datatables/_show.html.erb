@@ -1,0 +1,33 @@
+<%view_button||=false; edit_button||=true; extra_attributes||={}%>
+<%locals = {
+  columns: {key: {null: true}, value: {null: true}},
+  no_header_footer: true, no_sort: true
+}%>
+<script>
+	<%dt_options = "dt_options_#{table_id}"%>
+	<%=dt_options%> = {}
+  //Disable Pagination
+  $.extend(<%=dt_options%>, {paging: false, bInfo: false})
+</script>
+<%=render :layout=> 'datatables/datatable', :locals=> locals do%>
+  <%attributes.each do |attribute_name, attribute_data|%>
+    <%cell = (object.send(attribute_data[:method]) rescue nil) || object[attribute_data[:method]]%>
+    <tr>
+      <%attribute_style = attribute_data[:attribute_style].presence%>
+      <%value_style = attribute_data[:value_style][cell].presence rescue nil%>
+      <%style = [attribute_style, value_style].compact.join(';')%>
+      <th><%=attribute_data[:title]%></th>
+      <td style='<%=style%>'><%=cell%></td>
+    </tr>
+  <%end%>
+  <%extra_attributes.each do |attribute_name, attribute_data|%>
+    <%cell = attribute_data[:value]%>
+    <tr>
+      <%attribute_style = attribute_data[:attribute_style].presence%>
+      <%value_style = attribute_data[:value_style][cell].presence rescue nil%>
+      <%style = [attribute_style, value_style].compact.join(';')%>
+      <th><%=attribute_data[:title]||attribute_name.to_s.titleize%></th>
+      <td style='<%=style%>'><%=cell%></td>
+    </tr>
+  <%end%>
+<%end%>

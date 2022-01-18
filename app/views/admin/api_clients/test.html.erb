@@ -1,0 +1,104 @@
+<%= javascript_include_tag 'js/crypto.js' %>
+<%=render layout: 'layouts/ibox', :locals=>{size: 6, header: t("API Test")} do%>
+  <table id='request'>
+    <thead>
+      <tr>
+        <th><%="AccessID: #{@client.access_id}"%></th>
+      </tr>
+      <tr>
+        <th>
+        <%=select_tag 'method_type',
+            options_for_select(['GET', 'POST', 'PUT', 'DELETE']),
+            :class=>"form-control chosen-select required"%>
+        </th>
+        <th>
+        <div class="input-group"><span class="input-group-addon">api/</span> <%=text_field_tag 'request-uri', '', placeholder: 'request-uri', class: 'form-control required'%></div>
+        </th>
+      </tr>
+      <tr>
+        <th>
+          <button onclick="addParams()">Add Parameter</button>
+        <th><button onclick="callApi()">Call API</button></th>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan=2><textarea id='showresults' placeholder='...response...' disabled></textarea></td>
+      </tr>
+    </tfoot>
+  </table>
+<%end%>
+
+<script>
+  function addParams(){
+    $('#request tbody').append('<tr class="param">\
+    <td><div class="input-group"><span class="input-group-addon">Name</span><input class="name form-control"/></td>\
+    <td><div class="input-group"><span class="input-group-addon">Value</span><input class="value form-control"/></td>\
+    <td class="remove" onclick="$(this).parent().remove()"><i class="fa fa-minus-square" disabled></i></td>\
+    </tr>')
+  }
+
+  function callApi(){
+    url = '/api/'+$('#request-uri').val();
+    method_type = $('#method_type').val();
+    //RFC 2616: Sun, 07 Apr 2019 17:30:45 UTC
+    date = moment(new Date()).utc().format('ddd, DD MMM YYYY HH:mm:ss')+' GMT'
+    params = {}
+    
+    $('.param').each(function() {
+      name = $(this).find('.name').val();
+      value = $(this).find('.value').val();
+      params[name] = value;
+    });
+
+    canonical_string = method_type+',application/json,,'+url+','+date
+
+    if (method_type!='GET'){
+      params = JSON.stringify(params)}
+    else if(!$.isEmptyObject(params)){
+      canonical_string = method_type+',application/json,,'+url+'?'+$.param(params)+','+date
+    }
+
+    signature = createSignature(canonical_string, '<%=@client.secret_key%>')
+    auth_header = 'APIAuth <%=@client.access_id%>:'+signature
+
+    console.log('params: ' + params)
+    console.log('canonical_string: ' + canonical_string)
+    console.log('signature: ' + signature)
+    request = $.ajax({
+      url: url,
+      type: method_type,
+      contentType: 'application/json',
+      data: params,
+      dataType: 'json',
+      headers: {contentMD5: '', timestamp: date, Authorization: auth_header}
+    });
+    request.success(function(data){
+      console.log(data);
+      $('#showresults').html(JSON.stringify(data));}
+    )
+    request.error(function(data){
+      console.log(data);
+      $('#showresults').html(JSON.stringify(data.responseJSON));}
+    )
+    return request
+  }
+
+  //'message', 'secret'
+  //DK9kn+7klT2Hv5A6wRdsReAo3xY=
+  function createSignature(message, secret){
+    var hash = CryptoJS.HmacSHA1(message, secret);
+    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+    return hashInBase64
+  }
+</script>
+
+<style>
+  #request button, #request input, #request textarea{width: 100%; height: 100%;}
+  #request textarea{resize: vertical; min-height: 150px; background: transparent}
+  #request th, #request td{width: 250px;}
+  #request td.remove{width: 10px; padding: 5px; cursor: pointer; color: red}
+</style>

@@ -1,0 +1,112 @@
+<%= javascript_include_tag "extras/export_tables.js"%>
+<%data||={};view_column||=false; edit_column||=false; add_next_action||=false;%>
+<script>
+	<%dt_options = "dt_options_#{table_id}"%>
+	<%=dt_options%> = {}
+	<%if local_assigns[:no_paging]%>
+		//Disable Pagination
+		$.extend(<%=dt_options%>, {paging: false, bInfo: false})
+  <%end%>
+
+	//Add Export Button
+//	$.extend(<%=dt_options%>, {buttons: ['pdf', 'excel','csv']})
+	//Add Export Button
+	$.extend(<%=dt_options%>, {buttons: [
+    'pdf',
+    'excel',
+    {extend: "csv", text:  "Export CSV", title: '<%=table_id.titleize%>'}]})
+
+  //Add Search Date functionality
+  $.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+      var result = true
+      $('.search-row th').each(function( index ) {
+        if ($(this).find('.search-col-date').length){
+          //get date in cell
+          cell_date_val = data[index]
+          cell_date = new Date(cell_date_val.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))
+
+          //check start date
+          start_date_val = $(this).find('input[name=start_date]').val().trim()
+          if (start_date_val!=''){
+            start_date = new Date(start_date_val.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))
+            if(start_date > cell_date){result = false;}
+          }
+          //check end date
+          end_date_val = $(this).find('input[name=end_date]').val().trim()
+          if (end_date_val!=''){
+            end_date = new Date(end_date_val.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))
+            if(end_date < cell_date){result = false}
+          }
+        }
+      });
+      return result
+      }
+  );
+</script>
+<%=render :layout=> 'datatables/datatable', :locals=>local_assigns do%>
+  <%data.each do |row_data|%>
+    <tr>
+      <%row = yield row_data%>
+      <%if row.present?%>
+        <%=row%>
+      <%else%>
+        <%columns.each do |column_name, column_data|%>
+          <%cell = (row_data.send(column_data[:method]) rescue nil) || row_data[column_data[:method]]%>
+          <%if cell.kind_of? Time%>
+            <%cell = cell.strftime("%d-%m-%Y %H:%M")%>
+          <%elsif cell.kind_of? Date%>
+            <%cell = cell.strftime("%d-%m-%Y")%>
+          <%end%>
+          <%attribute_style = column_data[:attribute_style].presence%>
+          <%value_style = column_data[:value_style][cell].presence rescue nil%>
+          <%style = [attribute_style, value_style].compact.join(';')%>
+          <td style='<%=style%>'>
+            <%=cell%>
+          </td>
+        <%end%>
+        <%if view_column%><td><%=link_to t('View'), {action: 'show', id: row_data['id']}, :class=>'fa fa-eye'%></td><%end%>
+        <%if edit_column%><td><%=link_to t('Edit'), {action: 'edit', id: row_data['id']}, :class=>'fa fa-edit'%></td><%end%>
+      <%end%>
+    </tr>
+  <%end%>
+<%end%>
+
+<script>
+$(document).on('ready page:load', function(){
+  <%datatable = "datatable_#{table_id}"%>
+  <%table = "table_#{table_id}"%>
+  <%=datatable%> = <%=table%>.DataTable()
+  
+  //Search Columns
+  <%=datatable%>.columns().every( function () {
+    //define column variables
+    var that = this
+    var col_number = parseInt(that[0])+1
+    var search_col = $('#<%=table_id%> .search-row :nth-child('+col_number+')')
+    
+    //Search for rows where column contains input
+    search_col.find('input').on( 'keyup', function () {
+      if ( that.search() !== this.value ) {
+        that.search( this.value ).draw()
+      }
+    });
+
+    //Search for rows where column matches select exactly
+    search_col.find('select').on( 'change', function () {
+      value = $(this).find(':selected').text()
+      if ( that.search() !== value ) {
+        if (this.selectedIndex!=0){search_val='^' + value + '$'}
+        else{search_val=''}
+        //search( input [, regex[ , smart[ , caseInsen ]]] )
+        that.search(search_val, true, false, true).draw()
+      }
+    });
+
+    //Redraw table when a search row parameter has changed
+    $('.search-col, .search-col-dropdown, .search-col-date input').bind('change dp.change', function(){
+      <%=datatable%>.draw()
+		})
+  })
+})
+</script>

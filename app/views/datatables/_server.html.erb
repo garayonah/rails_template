@@ -1,0 +1,97 @@
+<%url||="#{resource_name}/pages"; dataSrc||='data';
+view_column||=true; edit_column||=true; default_filter||={}%>
+<script>
+//https://datatables.net/manual/server-side
+	<%dt_options = "dt_options_#{table_id}"%>
+	var <%=dt_options%> = {}
+  <%col_data = "col_data_#{table_id}"%>
+  var <%=col_data%> = []
+  <%table = "table_#{table_id}"%>
+  <%columns.each do |column_name, column_data|%>
+    <%=col_data%>.push(<%==column_data.merge(name: column_name, data: column_data[:method], className: "col_#{column_name}").to_json%>)
+  <%end%>
+  <%if view_column%>
+    <%=col_data%>.push({'name': 'view', 'data': 'view', 'null': true, 'className': 'col_view'})
+  <%end%>
+  <%if edit_column%>
+    <%=col_data%>.push({'name': 'edit', 'data': 'edit', 'null': true, 'className': 'col_edit'})
+  <%end%>
+  var column_params = <%==columns.transform_values{|c|c.slice(:method, :attribute_style, :value_style)}.to_json%>
+
+	//Add Export Button
+	$.extend(<%=dt_options%>, {
+    buttons: [
+    {
+      text:  "Export CSV",
+      action: function (e, dt, node, config) {
+        $('#<%="#{table_id}_processing"%>').show()
+        data = {'query': <%=table%>.attr('query'), 'order': <%=table%>.attr('order')}
+        var url = '<%="#{resource_name}/export"%>?'+$.param(data)
+        if (!$('#<%=table_id%>_export_frame').length){
+          $(<%=table_id%>).append("<iframe id='<%=table_id%>_export_frame' style='display:none'></iframe>");
+        }
+        $('#<%=table_id%>_export_frame').attr('src', url)
+        $('#<%=table_id%>_export_frame').load(function(){
+          $('#<%="#{table_id}_processing"%>').hide()
+        });
+        }
+      }]
+    })
+
+  $.extend(<%=dt_options%>, {
+    serverSide: true,
+    processing: true,
+    columns: <%=col_data%>,
+    oLanguage: {sProcessing: "<div id='loader'><div></div> Processing</div>"},
+    ajax: {
+      url: "<%=url%>",
+      type: 'POST',
+      dataSrc: '<%=dataSrc%>',
+      data:function ( d ) {
+        var search_cols = {}
+        var search_cols_dropdown = {}
+        var search_cols_date = {}
+        <%=table%>.find(".search-row .search-col").each(function() {
+          if ($(this).val()!=''){search_cols[$(this).attr('name')] = $(this).val()}
+          })
+        <%=table%>.find(".search-row .search-col-dropdown").each(function() {
+          if ($(this).val()!=''){search_cols_dropdown[$(this).attr('name')] = $(this).val()}
+          })
+        <%=table%>.find(".search-row .search-col-date").each(function() {
+          search_cols_date[$(this).attr('name')] = {
+            start_date: $(this).find('input[name="start_date"]').val(),
+            end_date: $(this).find('input[name="end_date"]').val()}
+          })
+        d.dataSrc = '<%=dataSrc%>',
+        d.default_filter = <%==default_filter.to_json%>,
+        d.search_cols = search_cols,
+        d.search_cols_dropdown = search_cols_dropdown,
+        d.search_cols_date = search_cols_date,
+        d.order_column = d.columns[d.order[0].column].name,
+        d.order_dir = d.order[0].dir,
+        d.search_value = d.search.value
+      }
+    },
+    footerCallback: function ( row, data, start, end, display ) {
+      var response = this.api().ajax.json();
+      <%=table%>.attr('query',response['query']);
+      <%=table%>.attr('order',response['order']);
+    }
+  })
+</script>
+<%=render :layout=> 'datatables/datatable', :locals=>local_assigns do%>
+<%end%>
+<script>
+	$(document).on('ready page:load', function(){
+    <%datatable = "datatable_#{table_id}"%>
+    <%table = "table_#{table_id}"%>
+    <%=datatable%> = <%=table%>.DataTable()
+
+    //Redraw table when a search row parameter has changed
+    $('.search-col, .search-col-dropdown, .search-col-date input').bind('change dp.change', function(){
+      <%=datatable%>.settings()[0].jqXHR.abort();
+      <%=datatable%>.draw()
+		})
+
+	})
+</script>

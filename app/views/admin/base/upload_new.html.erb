@@ -1,0 +1,13 @@
+<%=render layout: 'layouts/ibox', :locals=>{:header=>t("Upload New Items", items: resource_name.titleize), :size=>6} do%>
+  <%=form_tag({:action=>:upload_create}, :multipart => true) do%>
+    <div class="col-sm-12">
+      <div class="form-group">
+        <label><%=t("File")%></label>
+        <%=file_field_tag 'file', accept: '.xlsx, .xls, .csv', class: 'form-control required', value: flash['file']%>
+      </div>
+      <div class="form-group">
+        <%=submit_tag "Submit", class: 'col-sm-6 btn btn-primary'%>
+      </div>
+    </div>
+  <%end%>
+<%end%>

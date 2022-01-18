@@ -1,0 +1,99 @@
+/*Datatable*/
+.toolbarL .toolbarR{
+ position: relative;
+ margin-bottom: 1em;}
+.toolbarL{float: left;}
+.toolbarR{float: right;}
+.toolbarR > div, .toolbarR > span, .toolbarR button{margin: 0 0 5px 5px;}
+.toolbarR button{
+  height: 30px;
+  border: solid 1px lightgray;
+  background: transparent;
+}
+.toolbarR button:active{box-shadow: 1px 1px 3px 0px inset;}
+
+.dataTable thead .search-row, .dataTable thead .search-row th{padding: 0;}
+
+.dataTable thead .search-row th{background: white; height:  0px}
+.dataTable thead .search-row th.null{
+ background: #f4f4f5;
+ border-top: 2px #1c7bce00 solid;}
+
+.dataTable .chosen-single{
+ height: 100% !important;
+ padding: 3px 0 0 10px;
+ color: #1a6679;
+ border: none;
+ background: white;
+ border-radius: 0px;
+ box-shadow: none;
+}
+.dataTable .chosen-container{
+ width: 100% !important;
+ padding: 0px !important;
+}
+.dataTable select, .dataTable .chosen-container, .dataTable input, .dataTable textarea, .search-col-date {
+ width: 100%;
+ height: 100%;
+ border: none;
+ padding: 2px 10px;
+ font-weight: normal;
+ color: #1a6679;
+ background: white;
+ -moz-appearance:none; /* Firefox */
+ -webkit-appearance:none; /* Safari and Chrome */
+ appearance:none;
+ position: relative;
+}
+.dataTable select:disabled, .dataTable input:disabled{background: lightgray}
+
+.dataTable li.active-result[data-option-array-index='0'],
+
+.dataTable .chosen-single.chosen-default{
+  background: none;
+  color: #8f9192;}
+  
+::placeholder {color: #8f9192;}
+:-ms-input-placeholder {color: #8f9192;}
+::-ms-input-placeholder {color: #8f9192;}
+
+/*Datatable Loader*/
+.dataTables_wrapper #loader{
+  font-size: 1.0em;
+  color: #3498db;
+  position: absolute;
+  left: 20%;
+}
+
+.dataTables_wrapper #loader div{
+ display: inline-block;
+ vertical-align: middle;
+ border: 4px solid #f3f3f3;
+ border-radius: 50%;
+ border-top: 4px solid #3498db;
+ width: 1.1em;
+ height: 1.1em;
+ -webkit-animation: spin 2s linear infinite;
+ animation: spin 2s linear infinite;
+}
+
+
+@-webkit-keyframes spin {
+ 0% { -webkit-transform: rotate(0deg); }
+ 100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+ 0% { transform: rotate(0deg); }
+ 100% { transform: rotate(360deg); }
+}
+
+.search-col-date .input-group-addon {
+  min-width: 0px;
+}
+.search-row .tooltip-inner {
+  max-width: null;
+}
+.search-row .tooltip.fade{
+  position: absolute;
+}

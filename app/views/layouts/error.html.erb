@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>500 Error | <%=APP_NAME%></title>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+  </head>
+
+  <body class="gray-bg">
+
+
+    <div class="middle-box text-center animated fadeInDown">
+      <h1>500</h1>
+      <h3 class="font-bold">Internal Server Error</h3>
+      <div class="error-desc">
+        The server encountered something unexpected that didn't allow it to complete the request.  Please contact technical support.<br/>
+        <%=link_to 'Home', root_path, class: 'btn btn-primary m-t'%>
+        <%=link_to 'Reload Page', '', class: 'btn btn-primary m-t'%>
+        </div><br/>
+        <textarea disabled style="color: red; background: #ffe5e5" cols="50" rows="5" >
+Error: <%=@exception.class%>
+Message: <%=@exception.message%>
+<%backtrace = @exception.backtrace.select{|b| b.include?Rails.root.to_s or b==@exception.backtrace.first}%>
+<%backtrace.each do |line|%>
+Line: <%=line%>
+<%end%>
+        </textarea>
+      </div>
+
+      <!-- Mainly scripts -->
+      <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    </body>
+
+  </html>
