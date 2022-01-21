@@ -1,24 +1,17 @@
 # README
+This is an ongoing project. The primary purpose is to keep and experiment with code that would be useful in a Ruby-on-Rails Project.
+This includes Ruby, Javascript, CSS, PostgreSQL
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Database
+### User Tables
+* Users
+* Roles
+* Privileges
+* Role-Privileges
 
-Things you may want to cover:
+### API Tables
+* APIs
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+### USSD Tables
+* USSD
+* 
